@@ -1,0 +1,32 @@
+services:
+    db:
+        image: postgres:16-alpine
+        ports:
+            - "6432:5432"
+        environment:
+            POSTGRES_USER: john
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: postgres
+        volumes:
+            - ./data/db:/var/lib/postgresql/data
+        networks:
+            - fullstack
+    api:
+        restart: always
+        image: backend:latest
+        build:
+            context: .
+        ports:
+            - "3000:3000"
+        environment:
+            DATABASE_URL: postgresql://john:postgres@db:5432/mydb?schema=public
+            COINMARKET_CAP_URL: https://pro-api.coinmarketcap.com/v1
+            COIN_MARKET_API: c2d007c3-b942-41ff-9488-0bb906f4e5a7
+        networks:
+            - fullstack
+        depends_on:
+            - db
+
+networks:
+    fullstack:
+        driver: bridge
